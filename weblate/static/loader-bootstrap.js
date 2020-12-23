@@ -206,7 +206,7 @@ function loadTableSorting() {
       .find("thead th")
       .each(function () {
         var th = $(this),
-          inverse = 1;
+          inverse = -1;
 
         // handle colspan
         if (th.attr("colspan")) {
