@@ -53,7 +53,7 @@
 {% perm 'unit.add' unit.translation as user_can_add_unit %}
 
 <div class="btn-group pull-right flip btn-group-settings" role="group">
-{% if user_can_translate %}
+{% if user_can_translate or user_can_suggest %}
 <a href="{% url 'zen' project=project.slug component=object.component.slug lang=object.language.code %}?offset={{offset}}&amp;{{ search_url }}" data-params="{{ search_url }}" title="{% trans "Edit in Zen mode" %}" class="btn btn-link">{% icon "flash.svg" %} {% trans "Zen" %}</a>
 {% endif %}
 

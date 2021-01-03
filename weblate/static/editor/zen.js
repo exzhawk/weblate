@@ -150,10 +150,11 @@
 
     var form = $row.find("form");
     statusdiv.addClass("unit-state-saving");
+    var suggesting = $("input[name=action]:checked", "#action").val()==="suggest";
     $.ajax({
       type: "POST",
       url: form.attr("action"),
-      data: form.serialize(),
+      data: form.serialize() + (suggesting ? "&suggest=" : ""),
       dataType: "json",
       error: function (jqXHR, textStatus, errorThrown) {
         addAlert(errorThrown);

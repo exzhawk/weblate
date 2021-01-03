@@ -5,6 +5,7 @@
 {% load translations %}
 {% load icons %}
 {% load static %}
+{% load permissions %}
 
 {% block extra_script %}
 {% compress js %}
@@ -42,6 +43,22 @@
 {% endif %}
 
 <div class="btn-group pull-right flip btn-group-settings" role="group">
+
+{% perm 'unit.edit' unitdata.0.unit as user_can_translate %}
+<div id="action-div" class="form-group">
+    <label for="action-div">{% trans "Action" %}</label>
+    <form id="action">
+        <label for="action-suggest" class="radio-inline">
+            <input type="radio" name="action" id="action-suggest" value="suggest" class="action-radio" {% if not user_can_translate %}checked="checked"{% endif %}>
+            {% trans "Suggest" %}
+        </label>
+        <label for="action-translate" class="radio-inline">
+            <input type="radio" name="action" id="action-translate" value="translate" class="action-radio" {% if user_can_translate %}checked="checked" {% else %}disabled{% endif %}>
+            {% trans "Translate" %}
+        </label>
+    </form>
+</div>
+
 
 <a href="{% url 'translate' project=project.slug component=object.component.slug lang=object.language.code %}?{{ search_url }}" data-params="{{ search_url }}" title="{% trans "Edit in single string mode" %}" class="btn btn-link">{% icon "close.svg" %} {% trans "Exit Zen" %}</a>
 

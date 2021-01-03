@@ -876,6 +876,8 @@ def save_zen(request, project, component, lang):
     form = TranslationForm(request.user, unit, request.POST)
     if not form.is_valid():
         show_form_errors(request, form)
+    elif "suggest" in request.POST:
+        perform_suggestion(unit, form, request)
     elif not request.user.has_perm("unit.edit", unit):
         messages.error(request, _("Insufficient privileges for saving translations."))
     else:
