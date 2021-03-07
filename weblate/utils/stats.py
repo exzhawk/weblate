@@ -53,6 +53,7 @@ BASICS = {
     "nottranslated",
     "translated",
     "approved",
+    "unapproved",
     "allchecks",
     "translated_checks",
     "dismissed_checks",
@@ -381,6 +382,9 @@ class TranslationStats(BaseStats):
             approved=conditional_sum(1, state=STATE_APPROVED),
             approved_words=conditional_sum("num_words", state=STATE_APPROVED),
             approved_chars=conditional_sum(Length("source"), state=STATE_APPROVED),
+            unapproved=conditional_sum(1, state=STATE_TRANSLATED),
+            unapproved_words=conditional_sum("num_words", state=STATE_TRANSLATED),
+            unapproved_chars=conditional_sum(Length("source"), state=STATE_TRANSLATED),
             # Labels
             unlabeled=conditional_sum(1, source_unit__labels__isnull=True),
             unlabeled_words=conditional_sum(
