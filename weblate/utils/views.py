@@ -41,9 +41,8 @@ from weblate.vcs.git import LocalRepository
 SORT_KEYS = {
     "name": lambda x: x.name if hasattr(x, "name") else x.component.name,
     "translated": lambda x: x.stats.translated_percent,
-    "untranslated": lambda x: x.stats.todo,
-    "untranslated_words": lambda x: x.stats.todo_words,
-    "untranslated_chars": lambda x: x.stats.todo_chars,
+    "nosuggestions": lambda x: x.stats.nosuggestions,
+    "unapproved": lambda x: x.stats.unapproved,
     "checks": lambda x: x.stats.allchecks,
     "suggestions": lambda x: x.stats.suggestions,
     "comments": lambda x: x.stats.comments,
