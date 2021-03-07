@@ -57,6 +57,9 @@
     $document.on("change", ".translation-editor", handleTranslationChange);
     $document.on("change", ".fuzzy_checkbox", handleTranslationChange);
     $document.on("change", ".review_radio", handleTranslationChange);
+    $document.on("click",".accept-suggestion",handleSuggestion);
+    $document.on("click",".accept-edit-suggestion",handleSuggestion);
+    $document.on("click",".delete-suggestion",handleSuggestion);
 
     Mousetrap.bindGlobal("mod+end", function (e) {
       $(".zen-unit:last").find(".translation-editor:first").focus();
@@ -171,6 +174,67 @@
         }
       },
     });
+  }
+
+  function handleSuggestion(){
+    var $this = $(this);
+    var _action=$this.attr('name');
+    var suggestionrow=$this.closest('.row');
+    var $row = $this.closest("tbody").find(".translator").closest("tr")
+    var checksum = $row.find("[name=checksum]").val();
+    var editor = $row.find(".translation-editor");
+
+    var statusdiv = $("#status-" + checksum);
+
+    /* Wait until previous operation on this field is completed */
+    if (statusdiv.hasClass("unit-state-saving")) {
+      setTimeout(function () {
+        $this.trigger("change");
+      }, 100);
+      return;
+    }
+
+    var form = $row.find("form");
+
+    if(_action==="accept_edit"){
+      editor.val(suggestionrow.find('.list-group-item-text').attr('data-content-text'));
+      editor.get(0).dispatchEvent(new Event('input', {bubbles: false}));
+      editor.get(0).addEventListener('change',function(){doSuggestAction('delete')},{once:true});
+      editor.focus();
+      return;
+    }
+
+    statusdiv.addClass("unit-state-saving");
+
+    doSuggestAction(_action);
+
+    function doSuggestAction(action) {
+      $.ajax({
+        type: "POST",
+        url:form.attr("action"),
+        data: form.serialize() + "&" + action + "=" + $this.val(),
+        dataType: "json",
+        error: function (jqXHR, textStatus, errorThrown) {
+          addAlert(errorThrown);
+        },
+        success: function (data) {
+          statusdiv.attr("class", "unit-state-cell " + data.unit_state_class);
+          statusdiv.attr("title", data.unit_state_title);
+          suggestionrow.hide();
+          if (action === "accept") {
+            editor.val(suggestionrow.find('.list-group-item-text').attr('data-content-text'));
+            editor.get(0).dispatchEvent(new Event('input', {bubbles: false}));
+          }
+          $.each(data.messages, function (i, val) {
+            addAlert(val.text);
+          });
+          $row.removeClass("translation-modified").addClass("translation-saved");
+          if (data.translationsum !== "") {
+            $row.find("input[name=translationsum]").val(data.translationsum);
+          }
+        }
+      });
+    }
   }
 
   document.addEventListener("DOMContentLoaded", function () {

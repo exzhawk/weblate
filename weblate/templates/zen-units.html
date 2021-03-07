@@ -89,6 +89,37 @@
 </td>
 </tr>
 
+{% perm 'suggestion.accept' item.unit as user_can_accept_suggestion %}
+{% if item.unit.suggestions %}
+<tr id="row-suggestion-{{ item.unit.checksum }}">
+    <td>
+    </td>
+    <td colspan="2">
+        {% for suggestion in item.unit.suggestions %}
+            {% perm 'suggestion.delete' suggestion as user_can_delete_suggestion %}
+            <div class="row">
+                <div class="col-xs-2">
+                    <strong>{{ suggestion.get_user_display }}</strong>
+                </div>
+                <div class="col-xs-10">
+                    <div class="btn-float pull-right flip">
+                        {% if user_can_accept_suggestion %}
+                            <button class="btn btn-link green accept-suggestion" name="accept" value="{{ suggestion.id }}" title="{% trans "Accept" %}">{% icon "check.svg" %}</button>
+                            <button class="btn btn-link green accept-edit-suggestion" name="accept_edit" value="{{ suggestion.id }}" title="{% trans "Accept and edit" %}">{% icon "pencil.svg" %}</button>
+                        {% endif %}
+                        {% if user_can_delete_suggestion %}
+                            <button class="btn btn-link red delete-suggestion" name="delete" value="{{ suggestion.id }}" title="{% trans "Delete" %}">{% icon "delete.svg" %}</button>
+                        {% endif %}
+                    </div>
+                    {% format_translation suggestion.target suggestion.unit.translation.language suggestion.unit.translation.plural %}
+                    <span class="pull-right flip text-muted">{{ suggestion.timestamp|naturaltime }}</span>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </td>
+</tr>
+{% endif %}
 
 </tbody>
 {% endfor %}

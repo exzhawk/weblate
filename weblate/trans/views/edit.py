@@ -876,6 +876,35 @@ def save_zen(request, project, component, lang):
     form = TranslationForm(request.user, unit, request.POST)
     if not form.is_valid():
         show_form_errors(request, form)
+    elif 'accept' in request.POST or 'accept_edit' in request.POST or 'delete' in request.POST:
+        # copied from handle_suggestions
+        params = ("accept", "accept_edit", "delete")
+        mode = None
+
+        # Parse suggestion ID
+        for param in params:
+            if param in request.POST:
+                sugid = request.POST[param]
+                mode = param
+                break
+
+        # Fetch suggestion
+        try:
+            suggestion = Suggestion.objects.get(pk=int(sugid), unit=unit)
+            # Permissions check
+            if not check_suggest_permissions(request, mode, unit, suggestion):
+                messages.error(request, _("Insufficient privileges for saving translations."))
+            else:
+                # Perform operation
+                if "accept" in request.POST or "accept_edit" in request.POST:
+                    suggestion.accept(request)
+                    unit.state = STATE_TRANSLATED
+                    translationsum = hash_to_checksum(suggestion.unit.get_target_hash())
+                elif "delete" in request.POST:
+                    suggestion.delete_log(request.user)
+        except (Suggestion.DoesNotExist, ValueError):
+            messages.error(request, _("Invalid suggestion!"))
+
     elif "suggest" in request.POST:
         perform_suggestion(unit, form, request)
     elif not request.user.has_perm("unit.edit", unit):
